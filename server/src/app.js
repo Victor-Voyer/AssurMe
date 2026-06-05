@@ -6,6 +6,8 @@ const { errorHandler } = require('./middlewares/errorHandler');
 
 const authRoutes = require('./routes/auth.routes');
 const contractRoutes = require('./routes/contract.routes');
+const alertRoutes = require('./routes/alert.routes');
+const claimRoutes = require('./routes/claim.routes');
 
 const app = express();
 
@@ -20,6 +22,8 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/contracts', contractRoutes);
+app.use('/api/alerts', alertRoutes);
+app.use('/api/claims', claimRoutes);
 
 app.use(errorHandler);
 

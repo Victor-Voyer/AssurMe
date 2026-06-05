@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { FileText, Bell, Euro, Calendar } from 'lucide-react';
 import { contractsService } from '../services/contracts.service';
+import { alertsService } from '../services/alerts.service';
 import { getContractTypeLabel } from '../constants/contractTypes';
 import { formatDate, formatCurrency } from '../utils/format';
 import Card from '../components/ui/Card';
@@ -15,7 +16,13 @@ export default function DashboardPage() {
     queryFn: contractsService.getAll,
   });
 
+  const { data: alertsData } = useQuery({
+    queryKey: ['alerts'],
+    queryFn: alertsService.getAll,
+  });
+
   const contracts = data?.data ?? [];
+  const alertCount = (alertsData?.data ?? []).filter((a) => !a.isRead).length;
 
   const totalPremium = contracts.reduce((sum, c) => sum + (c.premium || 0), 0);
   const withPdf = contracts.filter((c) => c.fileUrl).length;
@@ -73,7 +80,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <p className="text-sm text-slate-500">Alertes</p>
-              <p className="text-2xl font-bold text-slate-900">0</p>
+              <p className="text-2xl font-bold text-slate-900">{alertCount}</p>
             </div>
           </div>
         </Card>

@@ -1,4 +1,5 @@
 const { Contract, Coverage } = require('../config/db');
+const { extractContractData } = require('./ai.service');
 const { uploadToS3 } = require('./storage.service');
 const { NotFoundError, ValidationError } = require('../utils/errors');
 
@@ -49,7 +50,33 @@ const processUpload = async (contractId, file, userId) => {
   if (!file) throw new ValidationError('Fichier requis');
 
   const fileUrl = await uploadToS3(file);
-  await contract.update({ fileUrl });
+  const pdfBase64 = file.buffer.toString('base64');
+  const extracted = await extractContractData(pdfBase64);
+
+  await contract.update({
+    fileUrl,
+    insurer: extracted.insurer ?? contract.insurer,
+    type: extracted.type ?? contract.type,
+    policyNumber: extracted.policyNumber ?? contract.policyNumber,
+    startDate: extracted.startDate ? new Date(extracted.startDate) : contract.startDate,
+    endDate: extracted.endDate ? new Date(extracted.endDate) : contract.endDate,
+    renewalDate: extracted.renewalDate ? new Date(extracted.renewalDate) : contract.renewalDate,
+    premium: extracted.premium ?? contract.premium,
+  });
+
+  if (extracted.coverages?.length) {
+    await Coverage.destroy({ where: { contractId } });
+    await Coverage.bulkCreate(
+      extracted.coverages.map((c) => ({
+        contractId,
+        name: c.name,
+        details: c.details,
+        limit: c.limit,
+        deductible: c.deductible,
+      }))
+    );
+  }
+
   return getContract(contractId, userId);
 };
 

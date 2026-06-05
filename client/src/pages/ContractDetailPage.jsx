@@ -154,7 +154,7 @@ export default function ContractDetailPage() {
             </div>
           )}
           <p className="mt-3 text-xs text-slate-400">
-            L&apos;extraction automatique des garanties par IA sera disponible prochainement.
+            L&apos;extraction automatique des garanties par IA s&apos;active avec une clé ANTHROPIC_API_KEY valide.
           </p>
         </Card>
       </div>
