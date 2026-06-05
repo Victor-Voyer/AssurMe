@@ -13,7 +13,7 @@
 |-------|--------|-------------|
 | Phase 1 — Socle technique | Terminée | 100 % |
 | Phase 2 — Backend | Terminée | 100 % |
-| Phase 3 — Frontend | À faire | ~5 % |
+| Phase 3 — Frontend | Terminée | 100 % |
 | Phase 4 — IA & Fonctionnalités | À faire | 0 % |
 | Phase 5 — Qualité & Déploiement | À faire | ~20 % |
 
@@ -76,6 +76,22 @@
 
 > L'extraction IA des PDF (étape 17) n'est pas encore branchée sur l'upload — le fichier est stocké sur S3 et `fileUrl` est mis à jour.
 
+### Frontend React (Étapes 12–16)
+
+- [x] **Routage** : `client/src/App.jsx` — routes publiques (login/register) et privées (dashboard, contrats, alertes, sinistre)
+- [x] **Store Zustand** : `client/src/store/auth.store.js` avec persistance locale
+- [x] **Services API** : `api.js`, `auth.service.js`, `contracts.service.js` (intercepteurs JWT + déconnexion auto sur 401)
+- [x] **React Query** configuré dans `main.jsx`
+- [x] **Pages** :
+  - `LoginPage`, `RegisterPage` — formulaires avec react-hook-form
+  - `DashboardPage` — stats et contrats récents
+  - `ContractsPage` — liste, création et suppression
+  - `ContractDetailPage` — détail, garanties, upload PDF
+  - `AlertsPage` — placeholder (API non disponible)
+  - `ClaimAssistantPage` — assistant guidé démo (API non disponible)
+- [x] **Composants UI** : `Button`, `Input`, `Modal`, `Badge`, `Card`, `Spinner`, `Alert`, `FileDropzone`
+- [x] **Layout** : `Header`, `Sidebar`, `Layout`
+
 ---
 
 ## Ce qui reste à faire
@@ -92,20 +108,6 @@
 Routes additionnelles prévues dans le CDC (non encore implémentées) :
 - `/api/alerts` — gestion des alertes
 - `/api/claims` — assistant sinistre
-
----
-
-### Phase 3 — Frontend (Étapes 12–16)
-
-| Étape | Fichiers à créer | Description |
-|-------|------------------|-------------|
-| 12 | `client/src/App.jsx` | Routage React (login, dashboard, contrats, alertes, sinistre) |
-| 13 | `client/src/store/auth.store.js` | Store Zustand avec persistance |
-| 14 | `client/src/services/api.js`, `client/src/services/contracts.service.js` | Client Axios + intercepteurs |
-| 15 | Pages : `LoginPage`, `RegisterPage`, `DashboardPage`, `ContractsPage`, `ContractDetailPage`, `AlertsPage`, `ClaimAssistantPage` | Interfaces utilisateur |
-| 16 | Composants UI : `Button`, `Input`, `Modal`, `Badge`, `Card`, `Spinner`, `Alert`, `FileDropzone` + layout (`Header`, `Sidebar`, `Layout`) | Design system réutilisable |
-
-> Le frontend est encore au template Vite par défaut. La structure de dossiers (`components/`, `pages/`, `hooks/`, etc.) reste à créer.
 
 ---
 
@@ -144,8 +146,8 @@ Chaque bloc correspond à un commit logique, comme convenu au démarrage du proj
 | ⏳ 4 | `feat(server): configurer Express et gestion des erreurs` | 6–8 |
 | ⏳ 5 | `feat(server): authentification JWT` | 9 |
 | ⏳ 6 | `feat(server): CRUD contrats et upload PDF` | 10–11 |
-| 7 | `feat(client): routage, store et services API` | 12–14 |
-| 8 | `feat(client): pages et composants UI` | 15–16 |
+| ⏳ 7 | `feat(client): routage, store et services API` | 12–14 |
+| ⏳ 8 | `feat(client): pages et composants UI` | 15–16 |
 | 9 | `feat(server): extraction IA et fonctionnalités avancées` | 17–21 |
 | 10 | `chore: tests, Docker et scripts NPM racine` | 22–25 |
 
@@ -155,10 +157,19 @@ Chaque bloc correspond à un commit logique, comme convenu au démarrage du proj
 
 ```
 assurme/
-├── client/                    # Frontend React (template Vite)
+├── client/                    # Frontend React
 │   └── src/
-│       ├── App.jsx            # À remplacer par le routage AssurMe
-│       └── index.css          # Tailwind configuré
+│       ├── App.jsx
+│       ├── main.jsx
+│       ├── index.css
+│       ├── components/
+│       │   ├── ui/            # Button, Input, Modal, Badge, Card…
+│       │   └── layout/        # Header, Sidebar, Layout
+│       ├── pages/             # Login, Dashboard, Contrats, Alertes…
+│       ├── services/          # api.js, auth.service.js, contracts.service.js
+│       ├── store/             # auth.store.js
+│       ├── constants/
+│       └── utils/
 │
 ├── server/                    # Backend Node.js
 │   ├── migrations/
@@ -204,11 +215,12 @@ assurme/
 
 ## Prochaine étape recommandée
 
-**Phase 3 — Frontend React** (étapes 12 à 16) : routage, store Zustand, services API Axios, pages et composants UI.
+**Phase 4 — IA & Fonctionnalités avancées** (étapes 17 à 21) : extraction PDF via Claude, détection de doublons, alertes de renouvellement, assistant sinistre API.
 
-Commits backend à créer (3 commits séparés recommandés) :
+Commits suggérés (backend + frontend) :
 
 ```bash
+# Backend (3 commits)
 git add server/src/app.js server/src/index.js server/src/utils/ server/src/middlewares/errorHandler.js
 git commit -m "feat(server): configurer Express et gestion des erreurs"
 
@@ -217,6 +229,13 @@ git commit -m "feat(server): authentification JWT"
 
 git add server/src/routes/contract.routes.js server/src/controllers/contract.controller.js server/src/services/contract.service.js server/src/middlewares/upload.middleware.js server/src/services/storage.service.js server/.env.example client/.env.example
 git commit -m "feat(server): CRUD contrats et upload PDF"
+
+# Frontend (2 commits)
+git add client/src/App.jsx client/src/main.jsx client/src/store/ client/src/services/
+git commit -m "feat(client): routage, store et services API"
+
+git add client/src/pages/ client/src/components/ client/src/constants/ client/src/utils/ client/src/index.css
+git commit -m "feat(client): pages et composants UI"
 ```
 
 Pour lancer le développement local :
@@ -226,9 +245,7 @@ Pour lancer le développement local :
 docker compose up -d db
 cd server && npm run migrate
 
-# API
+# API + Frontend (2 terminaux)
 cd server && npm run dev
-
-# Frontend
 cd client && npm run dev
 ```
